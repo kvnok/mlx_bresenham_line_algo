@@ -3,7 +3,7 @@
 /*                                                        ::::::::            */
 /*   MLX42_Int.h                                        :+:    :+:            */
 /*                                                     +:+                    */
-/*   By: W2Wizard <w2.wizzard@gmail.com>              +#+                     */
+/*   By: W2Wizard <main@w2wizard.dev>                 +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/12/27 23:55:34 by W2Wizard      #+#    #+#                 */
 /*   Updated: 2022/07/21 10:46:43 by sbos          ########   odam.nl         */
@@ -175,8 +175,8 @@ typedef struct mlx_ctx
 	GLuint			vbo;
 	GLuint			shaderprogram;
 
-	uint32_t		initialWidth;
-	uint32_t		initialHeight;
+	int32_t			initialWidth;
+	int32_t			initialHeight;
 
 	mlx_list_t*		hooks;
 	mlx_list_t*		images;
@@ -239,7 +239,7 @@ bool mlx_freen(int32_t count, ...);
 
 //= OpenGL Functions =//
 
-void mlx_update_matrix(const mlx_t* mlx, int32_t width, int32_t height);
+void mlx_update_matrix(const mlx_t* mlx);
 void mlx_draw_instance(mlx_ctx_t* mlx, mlx_image_t* img, mlx_instance_t* instance);
 void mlx_flush_batch(mlx_ctx_t* mlx);
 

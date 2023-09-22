@@ -1,38 +1,49 @@
-NAME = lines
-CC = cc
-# CFLAGS = -Wall -Wextra -Werror
-HEADER = ./src/stuff.h
-CFLAGS ?=
-MLXLIB = libmlx42.a
-MLXFLAGS = -lglfw3 -framework Cocoa -framework OpenGL -framework IOKit
+SHELL := /bin/bash
 
-SRC = $(shell find ./src -iname "*.c")
-OBJ = $(SRC:./src/%.c=./obj/%.o)
-OBJDIR = obj
+NAME := bresenham
+SRC_DIR := src
+OBJ_DIR := obj
+MLX42_DIR := MLX42
+MLX42 := $(MLX42_DIR)/build/libmlx42.a
+HEADERS := $(shell find include -type f -name '*.h')
+SOURCES := $(shell find $(SRC_DIR) -type f -name '*.c')
+OBJECTS := $(patsubst $(SRC_DIR)%,$(OBJ_DIR)%,$(SOURCES:.c=.o))
 
-all: $(NAME)
+CC  := cc
+IFLAGS := -Iinclude -I$(MLX42_DIR)/include
+CFLAGS := 
+#-Wall -Wextra -Werror
+LFLAGS := -L$(MLX42_DIR)/build -lmlx42 -lglfw -ldl -pthread -lm
 
-$(OBJDIR):
-	mkdir $(OBJDIR)
+_DEBUG := 0
+ifeq ($(_DEBUG),1)
+	CFLAGS += -g3 -fsanitize=address
+endif
 
-$(MLXLIB):
-	cd ./MLX42 && cmake -B build && make -C build -j4
-	cd ./MLX42/build && cp libmlx42.a ../../
+all: $(MLX42) $(NAME)
 
-$(OBJDIR)/%.o: src/%.c
-	$(CC) $(CFLAGS) -c $(CFLAGS) -o $@ $^
+$(MLX42):
+	@cmake $(MLX42_DIR) -B $(MLX42_DIR)/build
+	@$(MAKE) -C $(MLX42_DIR)/build -j4 --quiet
 
-$(NAME): $(MLXLIB) $(OBJDIR) $(OBJ)
-	$(CC) $(CFLAGS) $(MLXFLAGS) $(MLXLIB) $(OBJ) -o $(NAME)
+$(NAME): $(OBJ_DIR) $(OBJECTS)
+	@$(CC) $(OBJECTS) $(LFLAGS) -o $(NAME) 
+
+$(OBJ_DIR):
+	@mkdir -p $(OBJ_DIR)
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS)
+	@mkdir -p $(dir $@)
+	@$(CC) $(SIZE_FLAGS) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(OBJDIR)
+	@$(MAKE) clean -C $(MLX42_DIR)/build -j4 --quiet
+	@rm -rf $(OBJ_DIR)
 
 fclean: clean
-	cd ./MLX42 && rm -rf build
-	rm -rf $(MLXLIB)
-	rm -rf $(NAME)
+	@$(MAKE) clean/fast -C $(MLX42_DIR)/build -j4 --quiet
+	@-rm -f $(NAME)
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all, clean, fclean, re

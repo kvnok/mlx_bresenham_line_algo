@@ -6,7 +6,7 @@
 # CMake specifications
 # -----------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.18.0)
-project(mlx42 VERSION 2.3.1)
+project(mlx42 VERSION 2.3.2)
 message(STATUS "MLX42 @ ${CMAKE_PROJECT_VERSION}")
 
 # Variables
@@ -18,6 +18,7 @@ set(CMAKE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
@@ -146,11 +147,34 @@ endif()
 
 # Testing
 # -----------------------------------------------------------------------------
-# Only build tests if we are the main project or explicitly told to this make sure 
-# tests are not built when mlx42 included as a subproject, use MLX42_BUILD_TESTS to overwrite this
+# Only build tests if we are the main project or explicitly told to, make sure 
+# tests are not built when mlx42 is included as a subproject, use MLX42_BUILD_TESTS to overwrite this
 # use cmake -DBUILD_TESTS=ON/-DMLX42_BUILD_TESTS=ON to build tests
 
 if ((PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME AND BUILD_TESTS) OR MLX42_BUILD_TESTS)
 	add_subdirectory(tests)
 	enable_testing()
 endif()
+
+# Installation
+# -----------------------------------------------------------------------------
+# Convenience feature to install the library and headers to the system.
+# Use cmake -DCMAKE_INSTALL_PREFIX=/usr/local for example to install to /usr/local
+# or any other directory that you want to install to.
+#
+# This only really useful if you are a system administrator and want to install
+# the library to the system, if you are a developer you should just use the
+# library as a subproject as you probably don't have (nor really should) have any
+# amibitons to use this for anything other than your own school projects.
+
+install(
+	DIRECTORY ./include/MLX42 DESTINATION ${CMAKE_INSTALL_PREFIX}/include
+	FILES_MATCHING PATTERN MLX42.h
+)
+
+install(TARGETS mlx42
+	EXPORT mlx42Targets
+	RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+	ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+	LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+)

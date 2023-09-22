@@ -1,5 +1,5 @@
 #include "stuff.h"
-#define SIZE 640
+#define SIZE 1280
 
 int32_t pixel_select(int32_t r, int32_t g, int32_t b, int32_t a)
 {
@@ -132,3 +132,6 @@ int main(int argc, char **argv)
 	return 0;
 }
 
+/*
+gcc main.c ../libmlx42.a -Iinclude -ldl -lglfw -pthread -lm
+*/
